@@ -1,0 +1,60 @@
+# Lean 4 Basic Patterns
+
+## Function Definitions
+Simple identity function:
+def ident (x : Nat) : Nat := x
+
+Conditional function:
+def myMin (a b : Int) : Int := if a ≤ b then a else b
+
+Pattern matching:
+def factorial : Nat → Nat
+  | 0 => 1
+  | n + 1 => (n + 1) * factorial n
+
+<EOC>
+
+## Common Data Types
+Natural numbers: Nat
+Integers: Int  
+Booleans: Bool
+Arrays: Array T
+Lists: List T
+
+Type conversions:
+Int.natAbs : Int → Nat
+↑n : Nat → Int (coercion)
+
+<EOC>
+
+## Basic Operators
+Arithmetic: +, -, *, /, %
+Comparison: =, ≠, <, ≤, >, ≥
+Logical: ∧, ∨, ¬, →, ↔
+Array access: arr[i]!, arr.get! i
+
+<EOC>
+
+## Function Signatures for Common Tasks
+Identity: def ident (x : T) : T := x
+Minimum of two: def min2 (a b : Int) : Int := if a ≤ b then a else b  
+Minimum of three: def min3 (a b c : Int) : Int := min2 (min2 a b) c
+Multiplication: def mult (a b : Int) : Int := a * b
+Divisibility check: def isDivisible (n d : Int) : Bool := n % d = 0
+Array map: def arrayMap (f : T → U) (arr : Array T) : Array U := arr.map f
+Common element check: def hasCommon (a b : Array T) : Bool := a.any (fun x => b.contains x)
+
+<EOC>
+
+## Specifications
+Simple equality spec:
+def func_spec (input : T) (result : U) : Prop := result = expected
+
+Complex spec with multiple conditions:
+def complex_spec (input : T) (result : U) : Prop := 
+  condition1 ∧ condition2 ∧ result = expected
+
+Array spec pattern:
+def array_spec (input : Array T) (result : Array U) : Prop :=
+  result.size = input.size ∧ 
+  ∀ i, i < input.size → result[i]! = transform input[i]!

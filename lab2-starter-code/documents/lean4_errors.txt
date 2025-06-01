@@ -1,0 +1,96 @@
+# Lean 4 Error Recovery Guide
+
+## Type Mismatch Errors
+Error: "type mismatch"
+Solution: Check expected vs actual types
+- Use type annotations: (expr : Type)
+- Use coercions: ↑n for Nat to Int
+- Check function signatures match usage
+
+<EOC>
+
+## Undefined Function Errors  
+Error: "unknown identifier"
+Solution: Check function is in scope
+- Import required modules: import Mathlib
+- Check spelling and capitalization
+- Ensure function is defined before use
+
+<EOC>
+
+## Proof Errors
+Error: "tactic failed" or "unsolved goals"
+Solution: Check proof completeness
+- Use sorry temporarily to isolate issues
+- Check all cases are covered
+- Verify hypothesis names and types
+
+<EOC>
+
+## Array Index Errors
+Error: "array index out of bounds"
+Solution: Provide bounds proofs
+- Use h : i < arr.size hypotheses
+- Use Array.get! for panic on bounds error
+- Use Array.get? for Option return
+
+<EOC>
+
+## Simplification Failures
+Error: "simp failed to simplify"
+Solution: Add explicit lemmas or use different tactics
+- simp [specific_lemma]
+- unfold definitions manually
+- Use rw instead of simp
+- Break into smaller steps
+
+<EOC>
+
+## Pattern Matching Errors
+Error: "non-exhaustive pattern"
+Solution: Cover all cases
+- Add wildcard pattern: | _ => default_case
+- Check all constructors are handled
+- Use cases tactic in proofs
+
+<EOC>
+
+## Common Quick Fixes
+Compilation errors:
+1. Check imports at top of file
+2. Verify syntax (def, theorem, example keywords)
+3. Check parentheses and bracket matching
+4. Verify function signatures match implementation
+
+Proof errors:
+1. Start with unfold for all custom definitions
+2. Use simp for basic arithmetic
+3. Use cases/by_cases for conditionals
+4. Use constructor for And/Exists goals
+5. Use exact for providing terms
+
+<EOC>
+
+## Debugging Strategies
+Use #check to verify types
+Use #eval to test functions  
+Use sorry to isolate proof steps
+Use trace tactics to see intermediate goals
+Break complex proofs into lemmas
+
+<EOC>
+
+## Recovery from Failed Attempts
+If direct approach fails:
+1. Try library functions (min, max from Mathlib)
+2. Simplify implementation (remove optimizations)
+3. Use more basic tactics (avoid advanced automation)
+4. Break specification into smaller parts
+5. Use classical logic if constructive fails
+
+If proof fails:
+1. Check if definition unfolds correctly
+2. Try manual case analysis instead of automation
+3. Use intermediate lemmas
+4. Simplify specification if possible
+5. Check for missing imports or lemmas

@@ -1,0 +1,108 @@
+# Lean 4 Proof Patterns
+
+## Basic Proof Structure
+theorem name (params) : statement := by
+  tactics
+
+example (params) : statement := by
+  tactics
+
+<EOC>
+
+## Essential Tactics
+unfold: Expand definition
+simp: Simplify expressions
+rw [lemma]: Rewrite using lemma
+cases: Case analysis
+constructor: Build structure
+exact: Provide exact proof
+apply: Apply function/theorem
+assumption: Use hypothesis
+rfl: Reflexivity
+
+<EOC>
+
+## Proving Equality
+For definitional equality:
+def f (x : Nat) : Nat := x
+theorem f_eq (x : Nat) : f x = x := by
+  unfold f
+  rfl
+
+<EOC>
+
+## Proving Specifications
+Basic specification proof pattern:
+def func_spec (input : T) (result : U) : Prop := 
+  result = expected_value
+
+theorem func_spec_satisfied (input : T) :
+  func_spec input (func input) := by
+  unfold func func_spec
+  rfl
+
+<EOC>
+
+## Conditional Logic Proofs
+For if-then-else:
+theorem cond_proof (condition : Prop) [Decidable condition] (a b : T) :
+  spec (if condition then a else b) := by
+  by_cases h : condition
+  · simp [h]
+    -- prove for true case
+  · simp [h]  
+    -- prove for false case
+
+<EOC>
+
+## Array Specifications
+Array size preservation:
+theorem array_size_preserved (arr : Array T) :
+  (transform arr).size = arr.size := by
+  unfold transform
+  simp [Array.size_map]
+
+Element-wise properties:
+theorem array_elements (arr : Array T) (i : Nat) (h : i < arr.size) :
+  (transform arr)[i]! = transform_element arr[i]! := by
+  unfold transform
+  simp [Array.getElem_map]
+
+<EOC>
+
+## Logical Connectives
+And (∧):
+constructor
+· -- prove first part
+· -- prove second part
+
+Or (∨):
+left  -- prove left disjunct
+-- or
+right -- prove right disjunct
+
+Iff (↔):
+constructor
+· -- prove forward direction
+· -- prove backward direction
+
+<EOC>
+
+## Common Proof Patterns by Problem Type
+Identity function:
+unfold ident ident_spec
+rfl
+
+Arithmetic operations:
+unfold operation operation_spec  
+ring -- for arithmetic simplification
+
+Comparison operations:
+unfold comparison comparison_spec
+by_cases h : condition
+· simp [h]
+· simp [h]
+
+Array operations:
+unfold operation operation_spec
+simp [Array.size_map, Array.getElem_map]

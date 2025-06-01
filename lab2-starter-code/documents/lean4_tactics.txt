@@ -1,0 +1,85 @@
+# Lean 4 Common Tactics Guide
+
+## Simplification Tactics
+simp: Automatic simplification using simp lemmas
+simp [lemma1, lemma2]: Simplification with specific lemmas
+simp only [lemma]: Simplification with only specified lemmas
+dsimp: Definitional simplification
+norm_num: Normalize numerical expressions
+
+<EOC>
+
+## Rewriting Tactics  
+rw [lemma]: Rewrite using equality lemma
+rw [← lemma]: Rewrite in reverse direction
+rw [lemma] at h: Rewrite in hypothesis h
+rw [lemma1, lemma2]: Chain multiple rewrites
+
+<EOC>
+
+## Case Analysis
+cases h: Case split on hypothesis h
+by_cases h : P: Case split on decidable proposition P
+split: Split on if-then-else or match expressions
+induction h: Proof by induction
+
+<EOC>
+
+## Goal Management
+constructor: Apply constructor of inductive type
+exact proof: Provide exact proof term
+apply lemma: Apply function/lemma to goal
+have h : P := proof: Introduce local hypothesis
+suffices h : P: Prove goal by proving P
+
+<EOC>
+
+## Logical Tactics
+left/right: Choose disjunct in A ∨ B
+exfalso: Prove goal from contradiction
+contradiction: Find contradiction in hypotheses
+tauto: Solve tautologies
+decide: Solve decidable propositions
+
+<EOC>
+
+## Arithmetic Tactics
+ring: Solve ring equations
+field_simp: Simplify field expressions  
+norm_num: Normalize numbers
+omega: Linear arithmetic over integers
+linarith: Linear arithmetic
+
+<EOC>
+
+## Array-Specific Tactics
+Array.ext: Array extensionality
+Array.get_set_eq: Array update lemmas
+Array.size_*: Array size lemmas
+Array.mem_*: Array membership lemmas
+
+<EOC>
+
+## Common Tactic Combinations
+For basic equality proofs:
+unfold definitions
+rfl
+
+For conditional proofs:
+by_cases h : condition
+· simp [h]
+  -- specific proof
+· simp [h]
+  -- specific proof
+
+For array proofs:
+constructor
+· -- prove size equality
+  simp [Array.size_map]
+· -- prove element equality  
+  intro i h
+  simp [Array.getElem_map]
+
+For specification proofs:
+unfold function_name spec_name
+-- then appropriate tactics based on definition

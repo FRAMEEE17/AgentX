@@ -1,0 +1,75 @@
+# Lean 4 Mathlib Examples
+
+## Integer Operations
+min function: min a b (from Mathlib)
+max function: max a b (from Mathlib)
+absolute value: Int.natAbs n
+divisibility: n ∣ m (n divides m)
+
+Useful lemmas:
+min_le_left: min a b ≤ a
+min_le_right: min a b ≤ b  
+le_min_iff: c ≤ min a b ↔ c ≤ a ∧ c ≤ b
+
+<EOC>
+
+## Natural Number Operations
+Nat.mod: n % m
+Nat.div: n / m
+Nat.gcd: greatest common divisor
+Nat.lcm: least common multiple
+
+Useful lemmas:
+Nat.mod_lt: n % m < m (when m > 0)
+Nat.div_mul_cancel: (n * m) / m = n (when m > 0)
+
+<EOC>
+
+## Array Operations from Mathlib
+Array.map: Transform elements
+Array.filter: Filter elements  
+Array.foldl: Left fold
+Array.foldr: Right fold
+Array.all: Check all elements
+Array.any: Check any element
+Array.contains: Membership test
+
+<EOC>
+
+## List Operations (Alternative to Arrays)
+List.map: Transform elements
+List.filter: Filter elements
+List.all: Check all elements  
+List.any: Check any element
+List.mem: Membership test
+List.length: Get length
+
+<EOC>
+
+## Common Mathlib Tactics
+exact?: Search for exact proof
+apply?: Search for applicable lemma
+simp?: Show what simp can prove
+library_search: Search library for proof
+suggest: Suggest applicable tactics
+
+<EOC>
+
+## Boolean Operations
+Bool.decide: Convert decidable proposition to Bool
+if condition then true else false patterns
+Bool.and, Bool.or, Bool.not operations
+
+<EOC>
+
+## Comparison Operations
+Decidable equality: a = b (automatically decidable for most types)
+Linear order: a < b, a ≤ b, a > b, a ≥ b
+min and max operations with associated lemmas
+
+<EOC>
+
+## Working with Decidable Propositions
+if h : P then ... else ... (pattern matching on decidability)
+Decidable.decide: Convert to boolean
+Classical reasoning when needed: classical or by_contra

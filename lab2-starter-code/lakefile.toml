@@ -1,20 +1,10 @@
 name = "Lean4-Code-Generator"
 version = "0.1.0"
-<<<<<<< HEAD
-=======
-defaultTargets = ["lean4-code-generator"]
->>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 
 [[lean_lib]]
 name = "Lean4CodeGenerator"
 
 [[require]]
-<<<<<<< HEAD
-name = "aesop"
-scope = "leanprover-community" 
-rev = "v4.11.0"
-=======
 name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.18.0"
->>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed

@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 beautifulsoup4==4.13.4
 bs4==0.0.2
 openai==1.74.0
-pydantic==2.6.3
+pydantic>=2.9.0
 PyPDF2==3.0.1
 PyYAML==6.0.2
 requests==2.32.3
@@ -11,17 +10,4 @@ sentence-transformers==4.1.0
 tiktoken==0.9.0
 torch==2.6.0
 transformers==4.51.3
-=======
-beautifulsoup4==4.13.4
-bs4==0.0.2
-openai==1.74.0
-pydantic==2.6.3
-PyPDF2==3.0.1
-PyYAML==6.0.2
-requests==2.32.3
-rich==14.0.0
-sentence-transformers==4.1.0
-tiktoken==0.9.0
-torch==2.6.0
-transformers==4.51.3
->>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
+numpy>=1.24.0
