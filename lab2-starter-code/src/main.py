@@ -2,6 +2,7 @@ import os
 import re
 import json
 import time
+import functools
 from typing import Dict, List, Tuple, Optional, Any
 from dataclasses import dataclass
 from enum import Enum
@@ -12,9 +13,66 @@ from src.embedding_db import VectorDB
 from src.embedding_models import OpenAIEmbeddingModel
 
 
+def timer_decorator(func_name: str):
+    """Decorator to time function execution"""
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            end_time = time.time()
+            duration = end_time - start_time
+            print(f"⏱️  [{func_name}] took {duration:.3f}s")
+            return result
+        return wrapper
+    return decorator
+
+
+class PerformanceProfiler:
+    """Tracks performance bottlenecks across the workflow"""
+    def __init__(self):
+        self.timings = {}
+        self.start_times = {}
+    
+    def start_timer(self, operation: str):
+        """Start timing an operation"""
+        self.start_times[operation] = time.time()
+    
+    def end_timer(self, operation: str):
+        """End timing and record duration"""
+        if operation in self.start_times:
+            duration = time.time() - self.start_times[operation]
+            self.timings[operation] = duration
+            print(f"⏱️  [{operation}] took {duration:.3f}s")
+            del self.start_times[operation]
+            return duration
+        return 0
+    
+    def get_summary(self) -> str:
+        """Get performance summary"""
+        if not self.timings:
+            return "No timing data recorded"
+        
+        total_time = sum(self.timings.values())
+        summary = f"\n📊 PERFORMANCE BREAKDOWN (Total: {total_time:.3f}s):\n"
+        
+        # Sort by duration (longest first)
+        sorted_timings = sorted(self.timings.items(), key=lambda x: x[1], reverse=True)
+        
+        for operation, duration in sorted_timings:
+            percentage = (duration / total_time) * 100
+            summary += f"   {operation:<30} {duration:>6.3f}s ({percentage:>5.1f}%)\n"
+        
+        return summary
+
+
+# Global profiler instance
+profiler = PerformanceProfiler()
+
+
 class ReasoningPath(Enum):
     DIRECT_IMPLEMENTATION = "direct_implementation"
-    MATHLIB_APPROACH = "mathlib_approach"
+    MATHLIB_APPROACH = "mathlib_approach" 
     SPECIFICATION_DRIVEN = "specification_driven"
     PATTERN_MATCHING = "pattern_matching"
 
@@ -41,58 +99,66 @@ class Solution:
     error: str = ""
 
 
-class AdaptiveProofSolver:
-    """Tree of Thoughts implementation for Lean 4 theorem proving"""
+class PlanningAgent:
+    """Agent 1: Handles task decomposition and strategy planning"""
+    
     def __init__(self):
-        self.planning_agent = Reasoning_Agent(model="o3-mini")
-        self.generation_agent = LLM_Agent(model="gpt-4o")
-        self.verification_agent = LLM_Agent(model="gpt-4o")
-        
-        # Initialize RAG system
-        self.rag_system = None
-        self._initialize_rag()
-        
-        # Conversation history for learning
-        self.conversation_history: List[Dict[str, Any]] = []
-        self.failed_attempts: List[Solution] = []
-        self.current_problem_info: Dict[str, str] = {}
-        self.current_task_template: str = ""
+        self.agent = Reasoning_Agent(model="o3-mini")
+        self.previous_attempts = []
     
-    def _initialize_rag(self) -> None:
-        """Initialize RAG system for knowledge retrieval"""
+    @timer_decorator("PlanningAgent.analyze_problem")
+    def analyze_problem(self, problem_description: str, task_lean_code: str) -> Dict[str, Any]:
+        """Analyze problem and create strategic plan"""
+        
+        profiler.start_timer("Planning.extract_info")
+        # Extract problem characteristics
+        problem_info = self._extract_problem_info(problem_description, task_lean_code)
+        profiler.end_timer("Planning.extract_info")
+        
+        profiler.start_timer("Planning.llm_call")
+        # Create planning prompt
+        planning_prompt = f"""
+        You are a Lean 4 theorem proving strategist. Analyze this problem and create a solving strategy.
+
+        PROBLEM DESCRIPTION:
+        {problem_description}
+
+        FUNCTION SIGNATURE: {problem_info['function_name']} {problem_info['parameters']} : {problem_info['return_type']}
+        SPECIFICATION: {problem_info['specification']}
+        PROBLEM TYPE: {problem_info['problem_type']}
+
+        PREVIOUS ATTEMPTS: {len(self.previous_attempts)} failed attempts
+
+        Create a strategic plan including:
+        1. Implementation approach (direct, library-based, pattern-matching)
+        2. Proof strategy (constructor, cases, simp, induction)
+        3. Key insights about the problem structure
+        4. Potential pitfalls to avoid
+
+        Respond in JSON format with keys: approach, proof_strategy, insights, pitfalls
+        """
+        
         try:
-            if os.path.exists("embeddings.npy") and os.path.exists("embeddings_chunks.pkl"):
-                self.rag_system = {
-                    "embedding_model": OpenAIEmbeddingModel(),
-                    "database_file": "embeddings.npy"
-                }
-                print("[ToT Agent] RAG system initialized")
+            response = self.agent.get_response([{"role": "user", "content": planning_prompt}])
+            profiler.end_timer("Planning.llm_call")
+            
+            profiler.start_timer("Planning.parse_response")
+            # Parse JSON response
+            plan = self._parse_json_response(response)
+            plan.update(problem_info)
+            profiler.end_timer("Planning.parse_response")
+            return plan
         except Exception as e:
-            print(f"[ToT Agent] RAG initialization failed: {e}")
+            profiler.end_timer("Planning.llm_call")
+            print(f"[Planning Agent] Error: {e}")
+            return problem_info
     
-    def _query_rag(self, query: str, k: int = 5) -> str:
-        """Query RAG system for relevant knowledge"""
-        if not self.rag_system:
-            return ""
-        
-        try:
-            chunks, scores = VectorDB.get_top_k(
-                self.rag_system["database_file"],
-                self.rag_system["embedding_model"],
-                query,
-                k=k
-            )
-            return "\n".join(chunks[:3]) if chunks else ""
-        except Exception as e:
-            print(f"[ToT Agent] RAG query failed: {e}")
-            return ""
-    
-    def extract_problem_info(self, problem_description: str, task_lean_code: str) -> Dict[str, str]:
-        """Extract and analyze problem information"""
+    def _extract_problem_info(self, problem_description: str, task_lean_code: str) -> Dict[str, str]:
+        """Extract key problem information"""
         info = {
             "function_name": "",
             "parameters": "",
-            "return_type": "",
+            "return_type": "", 
             "specification": "",
             "problem_type": "",
             "complexity": "medium"
@@ -113,270 +179,224 @@ class AdaptiveProofSolver:
         # Analyze problem type
         if "Array" in task_lean_code:
             info["problem_type"] = "array_processing"
-            info["complexity"] = "high"
         elif "Bool" in info["return_type"]:
             info["problem_type"] = "boolean_logic"
-            info["complexity"] = "medium"
         elif any(word in problem_description.lower() for word in ["minimum", "maximum", "compare"]):
             info["problem_type"] = "comparison"
-            info["complexity"] = "medium"
         else:
             info["problem_type"] = "arithmetic"
-            info["complexity"] = "low"
         
         return info
     
-    def _analyze_proof_structure(self, specification: str) -> str:
-        """Analyze proof structure requirements from specification"""
-        if "∧" in specification:
-            return "Conjunction proof - use constructor to split into parts"
-        elif "∨" in specification:
-            return "Disjunction proof - use left/right to choose branch"
-        elif "∀" in specification:
-            return "Universal quantification - use intro to introduce variables"
-        elif "∃" in specification:
-            return "Existential proof - provide witness with exact"
-        elif "↔" in specification:
-            return "Equivalence proof - use constructor for both directions"
-        elif "Array" in specification:
-            return "Array property proof - likely needs size and element properties"
-        else:
-            return "Simple equality or inequality proof - use simp or exact"
+    def _parse_json_response(self, response: str) -> Dict[str, Any]:
+        """Parse JSON from LLM response"""
+        try:
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+        except:
+            pass
+        return {"approach": "direct", "proof_strategy": "simp", "insights": "", "pitfalls": ""}
     
-    def _generate_targeted_proof(self, function_name: str, specification: str, problem_type: str) -> str:
-        """Generate targeted proofs for specific function patterns"""
-        
-        # Known working patterns
-        if function_name == "hasOppositeSign":
-            return """constructor
-· intro h
-  cases h with
-  | inl h1 => 
-    constructor
-    · exact h1.1
-    · exact h1.2
-  | inr h2 =>
-    constructor
-    · exact h2.1
-    · exact h2.2
-· intro h
-  cases' h.1.lt_or_gt with h1 h2
-  · cases' h.2.lt_or_gt with h3 h4
-    · left
-      constructor
-      · exact h1
-      · exact h4
-    · right
-      constructor
-      · exact h3
-      · exact h1
-  · cases' h.2.lt_or_gt with h3 h4
-    · right
-      constructor
-      · exact h2
-      · exact h3
-    · left
-      constructor
-      · exact h1
-      · exact h4"""
-        
-        elif function_name == "minOfThree":
-            return """constructor
-· constructor
-  · constructor
-    · simp [min_le_left]
-    · simp [min_le_right] 
-  · simp [min_le_left, min_le_right]
-· simp [min_choice]"""
-        
-        elif function_name == "myMin":
-            return """constructor
-· constructor
-  · simp [min_le_left]
-  · simp [min_le_right]
-· simp [min_choice]"""
-        
-        elif function_name == "hasCommonElement":
-            return """simp [Array.any_eq_true]
-constructor
-· intro h
-  exact h
-· intro h
-  exact h"""
-        
-        elif function_name == "isGreater":
-            return """simp [Array.all_eq_true]
-rfl"""
-        
-        elif function_name == "lastDigit":
-            return """constructor
-· constructor
-  · exact Nat.zero_le _
-  · exact Nat.mod_lt _ (by norm_num)
-· rfl"""
-        
-        elif function_name == "cubeElements":
-            return """constructor
-· simp [Array.size_map]
-· intro i h
-  simp [Array.getElem_map]"""
-        
-        elif function_name in ["ident", "multiply"]:
-            return "rfl"
-        
-        elif function_name == "isDivisibleBy11":
-            return "simp [decide_eq_true_iff]"
-        
-        elif function_name == "cubeSurfaceArea":
-            return "ring"
-        
-        else:
-            # Generate proof based on structure analysis
-            structure_analysis = self._analyze_proof_structure(specification)
-            if "Conjunction" in structure_analysis:
-                return "constructor\n· simp\n· simp"
-            elif "Array" in structure_analysis:
-                return "constructor\n· simp [Array.size_map]\n· intro i h\n  simp [Array.getElem_map]"
-            else:
-                return "simp"
+    def record_attempt(self, attempt: Solution):
+        """Record failed attempt for learning"""
+        self.previous_attempts.append(attempt)
+
+
+class GenerationAgent:
+    """Agent 2: Generates Lean 4 code and proofs"""
     
-    def _generate_implementation_code(self, function_name: str, problem_type: str, return_type: str, rag_context: str) -> str:
-        """Generate implementation code using patterns and RAG context"""
+    def __init__(self):
+        self.agent = LLM_Agent(model="gpt-4o")
+        profiler.start_timer("Generation.rag_init")
+        self.rag_system = self._initialize_rag()
+        profiler.end_timer("Generation.rag_init")
+    
+    def _initialize_rag(self) -> Optional[Dict]:
+        """Initialize RAG system"""
+        try:
+            if os.path.exists("embeddings.npy") and os.path.exists("embeddings_chunks.pkl"):
+                return {
+                    "embedding_model": OpenAIEmbeddingModel(),
+                    "database_file": "embeddings.npy"
+                }
+        except Exception as e:
+            print(f"[Generation Agent] RAG init failed: {e}")
+        return None
+    
+    @timer_decorator("GenerationAgent.query_rag")
+    def _query_rag(self, query: str, k: int = 3) -> str:
+        """Query RAG for relevant knowledge"""
+        if not self.rag_system:
+            return ""
         
-        # Known working implementations
-        implementations = {
-            "ident": "x",
-            "multiply": "a * b", 
-            "hasOppositeSign": "(a < 0 ∧ b > 0) ∨ (a > 0 ∧ b < 0)",
-            "isDivisibleBy11": "n % 11 = 0",
-            "minOfThree": "min (min a b) c",
-            "myMin": "min a b",
-            "hasCommonElement": "a.any (fun x => b.contains x)",
-            "isGreater": "a.all (fun x => n > x)",
-            "lastDigit": "n % 10",
-            "cubeSurfaceArea": "6 * size * size",
-            "cubeElements": "a.map (fun x => x * x * x)"
-        }
+        try:
+            chunks, scores = VectorDB.get_top_k(
+                self.rag_system["database_file"],
+                self.rag_system["embedding_model"],
+                query,
+                k=k
+            )
+            return "\n".join(chunks) if chunks else ""
+        except Exception as e:
+            print(f"[Generation Agent] RAG query failed: {e}")
+            return ""
+    
+    @timer_decorator("GenerationAgent.generate_implementation")
+    def generate_implementation(self, plan: Dict[str, Any]) -> str:
+        """Generate implementation based on strategic plan"""
         
-        if function_name in implementations:
-            return implementations[function_name]
+        profiler.start_timer("Generation.rag_query_code")
+        # Query RAG for relevant examples
+        rag_query = f"Lean 4 {plan['function_name']} {plan['problem_type']} implementation"
+        rag_context = self._query_rag(rag_query)
+        profiler.end_timer("Generation.rag_query_code")
         
-        # Generate based on problem type and RAG context
+        profiler.start_timer("Generation.llm_call_code")
+        # Create generation prompt
         prompt = f"""
-        Generate a Lean 4 implementation for function: {function_name}
-        Return type: {return_type}
-        Problem type: {problem_type}
+        Generate Lean 4 implementation following this strategic plan:
+
+        FUNCTION: {plan['function_name']} {plan['parameters']} : {plan['return_type']}
+        PROBLEM TYPE: {plan['problem_type']}
+        SPECIFICATION: {plan['specification']}
         
-        Context from knowledge base:
+        STRATEGIC APPROACH: {plan.get('approach', 'direct')}
+        KEY INSIGHTS: {plan.get('insights', '')}
+        PITFALLS TO AVOID: {plan.get('pitfalls', '')}
+
+        RELEVANT KNOWLEDGE:
         {rag_context}
-        
-        Provide ONLY the implementation expression, no surrounding code:
+
+        REQUIREMENTS:
+        1. Generate ONLY the implementation body (no def signature)
+        2. Use appropriate Lean 4 syntax and library functions
+        3. Handle edge cases based on specification
+        4. Follow the strategic approach outlined above
+
+        Implementation:
         """
         
         try:
-            response = self.generation_agent.get_response([{"role": "user", "content": prompt}])
-            # Clean the response
-            cleaned = re.sub(r'```lean\n?', '', response)
-            cleaned = re.sub(r'```\n?', '', cleaned)
-            lines = [line.strip() for line in cleaned.split('\n') 
-                    if line.strip() and not line.strip().startswith('--') and not line.strip().startswith('def')]
-            return lines[0] if lines else "sorry"
+            response = self.agent.get_response([{"role": "user", "content": prompt}])
+            profiler.end_timer("Generation.llm_call_code")
+            
+            profiler.start_timer("Generation.clean_code")
+            result = self._clean_code_response(response)
+            profiler.end_timer("Generation.clean_code")
+            return result
         except Exception as e:
-            print(f"[ToT Agent] Code generation failed: {e}")
+            profiler.end_timer("Generation.llm_call_code")
+            print(f"[Generation Agent] Code generation failed: {e}")
             return "sorry"
     
-    def generate_thought_nodes(self, problem_info: Dict[str, str], rag_context: str) -> List[ThoughtNode]:
-        """Generate multiple reasoning paths using Tree of Thoughts"""
-        print("[ToT Agent] Generating thought nodes...")
+    @timer_decorator("GenerationAgent.generate_proof")
+    def generate_proof(self, plan: Dict[str, Any], code: str) -> str:
+        """Generate proof based on strategic plan and implementation"""
         
-        # Create default thought nodes with different strategies
-        thought_nodes = [
-            ThoughtNode(
-                path=ReasoningPath.MATHLIB_APPROACH,
-                reasoning="Leverage built-in lemmas and tactics such as simp, linarith, and norm_num to operate on integer comparisons and arithmetic",
-                code_approach="Use library functions like min, max, Array.map, Array.all",
-                proof_strategy="Apply library lemmas and use structured template for conjunction",
-                confidence=0.9,
-                rationale="Library functions are proven and reliable"
-            ),
-            ThoughtNode(
-                path=ReasoningPath.SPECIFICATION_DRIVEN,
-                reasoning="Structure conditionals and pattern matching closely to the given specification, explicitly handling both the true and false cases of the universal property",
-                code_approach="Design implementation to match specification structure",
-                proof_strategy="Use targeted proof for known pattern",
-                confidence=0.8,
-                rationale="Proof-first design reduces verification complexity"
-            ),
-            ThoughtNode(
-                path=ReasoningPath.DIRECT_IMPLEMENTATION,
-                reasoning="Simple algorithmic approach with clear logic",
-                code_approach="Use if-then-else and basic operations directly",
-                proof_strategy="Use simp, cases, and basic tactics step by step",
-                confidence=0.7,
-                rationale="Straightforward and debuggable approach"
-            ),
-            ThoughtNode(
-                path=ReasoningPath.PATTERN_MATCHING,
-                reasoning="Functional programming with exhaustive cases",
-                code_approach="Pattern match on input structure and handle recursively",
-                proof_strategy="Use induction and case analysis systematically",
-                confidence=0.6,
-                rationale="Handles complex structured inputs elegantly"
-            )
-        ]
+        profiler.start_timer("Generation.rag_query_proof")
+        # Query RAG for proof patterns
+        rag_query = f"Lean 4 proof {plan['problem_type']} {plan.get('proof_strategy', 'simp')}"
+        rag_context = self._query_rag(rag_query)
+        profiler.end_timer("Generation.rag_query_proof")
         
-        print(f"[ToT Agent] Generated {len(thought_nodes)} thought nodes")
-        return thought_nodes
+        profiler.start_timer("Generation.llm_call_proof")
+        # Create proof generation prompt
+        prompt = f"""
+        Generate Lean 4 proof tactics following this strategic plan:
+
+        FUNCTION: {plan['function_name']}
+        IMPLEMENTATION: {code}
+        SPECIFICATION: {plan['specification']}
+        
+        PROOF STRATEGY: {plan.get('proof_strategy', 'simp')}
+        KEY INSIGHTS: {plan.get('insights', '')}
+
+        RELEVANT PROOF PATTERNS:
+        {rag_context}
+
+        REQUIREMENTS:
+        1. Generate proof tactics that work with the implementation
+        2. Handle specification structure (∧, ∨, ∀, ∃, etc.)
+        3. Use appropriate tactics: constructor, simp, cases, exact, etc.
+        4. Start with unfold {plan['function_name']} {plan['function_name']}_spec
+
+        Proof tactics:
+        """
+        
+        try:
+            response = self.agent.get_response([{"role": "user", "content": prompt}])
+            profiler.end_timer("Generation.llm_call_proof")
+            
+            profiler.start_timer("Generation.clean_proof")
+            result = self._clean_proof_response(response)
+            profiler.end_timer("Generation.clean_proof")
+            return result
+        except Exception as e:
+            profiler.end_timer("Generation.llm_call_proof")
+            print(f"[Generation Agent] Proof generation failed: {e}")
+            return "sorry"
     
-    def implement_solution(self, node: ThoughtNode, problem_info: Dict[str, str], rag_context: str) -> Solution:
-        """Implement a solution following a specific thought node"""
-        print(f"[ToT Agent] Implementing {node.path.value} approach...")
-        
-        reasoning_trace = [f"Generated code using {node.reasoning}"]
-        
-        # Generate code using targeted approach
-        code = self._generate_implementation_code(
-            problem_info["function_name"],
-            problem_info["problem_type"], 
-            problem_info["return_type"],
-            rag_context
-        )
-        
-        # Generate proof using targeted approach
-        proof = self._generate_targeted_proof(
-            problem_info["function_name"],
-            problem_info["specification"],
-            problem_info["problem_type"]
-        )
-        
-        reasoning_trace.append(f"Used {node.proof_strategy}")
-        
-        solution = Solution(
-            code=code,
-            proof=proof,
-            approach=node.path.value,
-            reasoning_trace=reasoning_trace
-        )
-        
-        return solution
+    def _clean_code_response(self, response: str) -> str:
+        """Clean code from LLM response"""
+        response = re.sub(r'```lean\n?', '', response)
+        response = re.sub(r'```\n?', '', response)
+        lines = [line.strip() for line in response.split('\n') 
+                if line.strip() and not line.strip().startswith('--') and not line.strip().startswith('def')]
+        return lines[0] if lines else "sorry"
     
+    def _clean_proof_response(self, response: str) -> str:
+        """Clean proof from LLM response"""
+        response = re.sub(r'```lean\n?', '', response)
+        response = re.sub(r'```\n?', '', response)
+        response = re.sub(r'^\s*by\s+', '', response.strip())
+        lines = [line.strip() for line in response.split('\n') 
+                if line.strip() and not line.strip().startswith('--')]
+        return '\n'.join(lines) if lines else "sorry"
+
+
+class VerificationAgent:
+    """Agent 3: Verifies solutions and provides feedback"""
+    
+    def __init__(self):
+        self.agent = LLM_Agent(model="gpt-4o")
+        profiler.start_timer("Verification.rag_init")
+        self.rag_system = self._initialize_rag()
+        profiler.end_timer("Verification.rag_init")
+    
+    def _initialize_rag(self) -> Optional[Dict]:
+        """Initialize RAG system for error patterns"""
+        try:
+            if os.path.exists("embeddings.npy") and os.path.exists("embeddings_chunks.pkl"):
+                return {
+                    "embedding_model": OpenAIEmbeddingModel(),
+                    "database_file": "embeddings.npy"
+                }
+        except:
+            pass
+        return None
+    
+    @timer_decorator("VerificationAgent.verify_solution")
     def verify_solution(self, solution: Solution, task_lean_code: str) -> bool:
         """Verify solution by executing Lean code"""
         try:
+            profiler.start_timer("Verification.prepare_code")
             test_code = task_lean_code.replace("{{code}}", solution.code)
             test_code = test_code.replace("{{proof}}", solution.proof)
+            profiler.end_timer("Verification.prepare_code")
             
+            profiler.start_timer("Verification.lean_execution")
             result = execute_lean_code(test_code)
+            profiler.end_timer("Verification.lean_execution")
             
             if "executed successfully" in result or "No errors found" in result:
                 solution.success = True
-                solution.reasoning_trace.append("Verification successful")
+                solution.reasoning_trace.append("Verification: PASS")
                 return True
             else:
                 error_msg = result.split("Lean Error:")[-1].strip() if "Lean Error:" in result else result
                 solution.error = error_msg
-                solution.reasoning_trace.append(f"Verification failed: {error_msg[:100]}...")
-                self.failed_attempts.append(solution)
+                solution.reasoning_trace.append(f"Verification: FAIL - {error_msg[:100]}...")
                 return False
                 
         except Exception as e:
@@ -384,77 +404,184 @@ rfl"""
             solution.reasoning_trace.append(f"Verification error: {str(e)}")
             return False
     
-    def solve_with_tree_of_thoughts(self, problem_description: str, task_lean_code: str) -> Solution:
-        """Enhanced Tree of Thoughts solving process"""
-        print("[ToT Agent] Starting enhanced Tree of Thoughts solving process...")
+    @timer_decorator("VerificationAgent.analyze_error")
+    def analyze_error_and_suggest_fix(self, solution: Solution, plan: Dict[str, Any]) -> Dict[str, str]:
+        """Analyze error and suggest corrections"""
         
-        # Store for error recovery
-        self.current_task_template = task_lean_code
+        if not solution.error:
+            return {"suggestion": "no_error", "approach": "keep_current"}
         
-        # Extract problem information
-        problem_info = self.extract_problem_info(problem_description, task_lean_code)
-        self.current_problem_info = problem_info
-        print(f"[ToT Agent] Analyzing {problem_info['function_name']} ({problem_info['problem_type']})")
+        profiler.start_timer("Verification.rag_query_error")
+        # Query RAG for error patterns
+        if self.rag_system:
+            try:
+                rag_query = f"Lean 4 error fix {solution.error[:50]}"
+                chunks, _ = VectorDB.get_top_k(
+                    self.rag_system["database_file"],
+                    self.rag_system["embedding_model"],
+                    rag_query,
+                    k=2
+                )
+                rag_context = "\n".join(chunks) if chunks else ""
+            except:
+                rag_context = ""
+        else:
+            rag_context = ""
+        profiler.end_timer("Verification.rag_query_error")
         
-        # Get relevant knowledge from RAG
-        rag_query = f"{problem_info['function_name']} {problem_info['problem_type']} {problem_info['return_type']} proof"
-        rag_context = self._query_rag(rag_query)
+        profiler.start_timer("Verification.llm_call_error")
+        # Create error analysis prompt
+        prompt = f"""
+        Analyze this Lean 4 error and suggest a fix:
+
+        FUNCTION: {plan['function_name']}
+        CURRENT CODE: {solution.code}
+        CURRENT PROOF: {solution.proof}
+        ERROR MESSAGE: {solution.error}
         
-        # Generate thought nodes (reasoning paths)
-        thought_nodes = self.generate_thought_nodes(problem_info, rag_context)
+        CONTEXT FROM KNOWLEDGE BASE:
+        {rag_context}
+
+        Suggest specific fixes:
+        1. What is the root cause of this error?
+        2. Should we modify the code or proof?
+        3. What specific changes are needed?
+
+        Respond in JSON format with keys: root_cause, fix_target, specific_changes
+        """
         
-        # Try each approach
-        for i, node in enumerate(thought_nodes):
-            print(f"[ToT Agent] Trying approach {i+1}/{len(thought_nodes)}: {node.path.value}")
+        try:
+            response = self.agent.get_response([{"role": "user", "content": prompt}])
+            profiler.end_timer("Verification.llm_call_error")
             
-            # Implement solution for this thought node
-            solution = self.implement_solution(node, problem_info, rag_context)
+            # Parse JSON response
+            json_match = re.search(r'\{.*\}', response, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+        except:
+            profiler.end_timer("Verification.llm_call_error")
+            pass
+        
+        return {
+            "root_cause": "unknown",
+            "fix_target": "proof", 
+            "specific_changes": "try different tactics"
+        }
+
+
+class MultiAgentLeanSolver:
+    """Main multi-agent orchestrator with performance profiling"""
+    
+    def __init__(self):
+        profiler.start_timer("Solver.initialization")
+        self.planning_agent = PlanningAgent()
+        self.generation_agent = GenerationAgent()
+        self.verification_agent = VerificationAgent()
+        profiler.end_timer("Solver.initialization")
+        
+        print("[Multi-Agent Solver] Initialized 3-agent architecture:")
+        print("  1. Planning Agent (o3-mini) - Strategy & Task Decomposition")
+        print("  2. Generation Agent (gpt-4o) - Code & Proof Generation with RAG")
+        print("  3. Verification Agent (gpt-4o) - Verification & Feedback")
+    
+    @timer_decorator("MultiAgentSolver.solve")
+    def solve_with_multi_agent_workflow(self, problem_description: str, task_lean_code: str, max_iterations: int = 3) -> Solution:
+        """Multi-agent workflow with corrective feedback and performance profiling"""
+        
+        print("[Multi-Agent Solver] Starting multi-agent workflow...")
+        
+        # Step 1: Strategic Planning
+        print("[Step 1] Planning Agent: Analyzing problem and creating strategy...")
+        plan = self.planning_agent.analyze_problem(problem_description, task_lean_code)
+        print(f"[Step 1] Strategy: {plan.get('approach', 'direct')} approach")
+        
+        # Step 2: Iterative Generation and Verification
+        for iteration in range(max_iterations):
+            print(f"[Step 2.{iteration+1}] Generation-Verification Cycle {iteration+1}/{max_iterations}")
+            
+            # Generate implementation
+            print("[Generation Agent] Generating implementation...")
+            code = self.generation_agent.generate_implementation(plan)
+            print(f"[Generation Agent] Generated code: {code[:50]}...")
+            
+            # Generate proof
+            print("[Generation Agent] Generating proof...")
+            proof = self.generation_agent.generate_proof(plan, code)
+            print(f"[Generation Agent] Generated proof: {proof[:50]}...")
+            
+            # Create solution
+            solution = Solution(
+                code=code,
+                proof=proof,
+                approach=f"multi_agent_{plan.get('approach', 'direct')}",
+                reasoning_trace=[
+                    f"Planning: {plan.get('approach', 'direct')} strategy",
+                    f"Generation iteration: {iteration+1}",
+                    f"Code: {code[:30]}...",
+                    f"Proof strategy: {plan.get('proof_strategy', 'simp')}"
+                ]
+            )
             
             # Verify solution
-            if self.verify_solution(solution, task_lean_code):
-                print(f"[ToT Agent] Success with {node.path.value} approach!")
+            print("[Verification Agent] Verifying solution...")
+            if self.verification_agent.verify_solution(solution, task_lean_code):
+                print(f"[Multi-Agent Solver] SUCCESS after {iteration+1} iterations!")
+                solution.reasoning_trace.append(f"Verified successfully on iteration {iteration+1}")
                 return solution
-            else:
-                print(f"[ToT Agent] {node.path.value} approach failed: {solution.error[:100]}...")
+            
+            # If verification failed and we have more iterations
+            if iteration < max_iterations - 1:
+                print("[Verification Agent] Solution failed, analyzing error...")
+                error_analysis = self.verification_agent.analyze_error_and_suggest_fix(solution, plan)
+                print(f"[Verification Agent] Error cause: {error_analysis.get('root_cause', 'unknown')}")
+                
+                # Record failed attempt for learning
+                self.planning_agent.record_attempt(solution)
+                
+                # Update plan based on feedback
+                plan["previous_error"] = solution.error
+                plan["error_analysis"] = error_analysis
+                print("[Planning Agent] Updating strategy based on feedback...")
         
-        # All approaches failed
-        print("[ToT Agent] All approaches failed")
-        return Solution(
-            code="sorry",
-            proof="sorry", 
-            approach="failed",
-            reasoning_trace=["All enhanced Tree of Thoughts approaches failed"],
-            success=False,
-            error="No successful approach found after enhancement"
-        )
+        # All iterations failed
+        print("[Multi-Agent Solver] All iterations failed")
+        solution.reasoning_trace.append(f"Failed after {max_iterations} multi-agent iterations")
+        return solution
 
 
 def main_workflow(problem_description: str, task_lean_code: str = "") -> Dict[str, str]:
     """
-    Enhanced Tree of Thoughts main workflow for Lean 4 theorem proving.
-    
-    This implements an enhanced multi-agent system with improved proof generation,
-    error recovery, and targeted fixes for problematic patterns.
+    Multi-agent workflow with comprehensive performance profiling.
     """
-    print("[Main Workflow] Starting Enhanced Tree of Thoughts Multi-Agent System...")
+    print("[Main Workflow] Starting Lab 2 Multi-Agent Lean 4 Theorem Prover...")
     
-    # Validate inputs
+    # Reset profiler for this task
+    global profiler
+    profiler = PerformanceProfiler()
+    
+    profiler.start_timer("Total.workflow")
+    
+    # Input validation
     if not task_lean_code or not problem_description:
         print("[Main Workflow] Missing required inputs")
         return {"code": "sorry", "proof": "sorry"}
     
-    # Initialize Enhanced Tree of Thoughts agent
-    enhanced_tot_agent = AdaptiveProofSolver()
+    # Initialize multi-agent system
+    solver = MultiAgentLeanSolver()
     
     try:
-        # Solve using Enhanced Tree of Thoughts approach
-        solution = enhanced_tot_agent.solve_with_tree_of_thoughts(problem_description, task_lean_code)
+        # Execute multi-agent workflow
+        solution = solver.solve_with_multi_agent_workflow(problem_description, task_lean_code)
         
-        # Log the reasoning process
+        profiler.end_timer("Total.workflow")
+        
+        # Print performance summary
+        print(profiler.get_summary())
+        
+        # Log results
         print(f"[Main Workflow] Final approach: {solution.approach}")
         print(f"[Main Workflow] Success: {solution.success}")
-        if solution.reasoning_trace:
-            print(f"[Main Workflow] Reasoning: {' → '.join(solution.reasoning_trace[-3:])}")
+        print(f"[Main Workflow] Reasoning trace: {' → '.join(solution.reasoning_trace[-2:])}")
         
         return {
             "code": solution.code,
@@ -462,7 +589,9 @@ def main_workflow(problem_description: str, task_lean_code: str = "") -> Dict[st
         }
         
     except Exception as e:
+        profiler.end_timer("Total.workflow")
         print(f"[Main Workflow] Unexpected error: {e}")
+        print(profiler.get_summary())
         return {"code": "sorry", "proof": "sorry"}
 
 def get_problem_and_code_from_taskpath(task_path: str) -> Tuple[str, str]:
