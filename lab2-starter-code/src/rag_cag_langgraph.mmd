@@ -1,0 +1,26 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	problem_analysis(problem_analysis)
+	rag_query(rag_query)
+	generation(generation)
+	verification(verification)
+	cache_store(cache_store)
+	iteration_increment(iteration_increment)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> problem_analysis;
+	generation --> verification;
+	iteration_increment -.-> __end__;
+	iteration_increment -.-> rag_query;
+	problem_analysis --> rag_query;
+	rag_query --> generation;
+	verification -.-> cache_store;
+	verification -. &nbsp;iteration_check&nbsp; .-> iteration_increment;
+	cache_store --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
