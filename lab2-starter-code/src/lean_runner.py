@@ -90,9 +90,9 @@ def clean_lean_code_for_execution(lean_code: str) -> str:
     clean_code = re.sub(r'import Mathlib.*\n', '', lean_code)
     clean_code = re.sub(r'import Aesop.*\n', '', clean_code)
     
-    # Add basic definitions if needed
+    # Add basic definitions 
     if any(func in clean_code for func in ['min_le_iff', 'le_min_iff', 'Array.size_map', 'Array.getElem_map']):
-        # Add basic lemmas that might be needed
+       
         basic_lemmas = '''
 -- Basic lemmas to replace Mathlib
 axiom min_le_iff (a b c : Int) : c ≤ min a b ↔ c ≤ a ∧ c ≤ b
