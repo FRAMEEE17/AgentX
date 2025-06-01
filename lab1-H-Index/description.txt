@@ -1,0 +1,10 @@
+-----Description----- 
+This task requires writing a Lean 4 method that calculates the h-index of a researcher given their citation counts. The h-index is defined as the maximum value of h such that the researcher has published at least h papers that have each been cited at least h times. The input array is sorted in non-descending order, and the algorithm must run in logarithmic time using binary search.
+
+-----Input-----
+The input consists of one array:
+citations: An array of natural numbers representing citation counts for each paper, sorted in non-descending order.
+
+-----Output-----
+The output is a natural number:
+Returns the researcher's h-index, which is the maximum value h such that there are at least h papers with at least h citations each.

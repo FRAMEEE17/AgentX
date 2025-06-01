@@ -1,0 +1,12 @@
+-----Description----- 
+This task requires writing a Lean 4 method that calculates the distance value between two integer arrays. The distance value is defined as the number of elements in arr1[i] such that there is no element arr2[j] where the absolute difference |arr1[i] - arr2[j]| is less than or equal to d. In other words, count elements in arr1 that are "far enough" from all elements in arr2.
+
+-----Input-----
+The input consists of three parameters:
+arr1: An array of integers (the reference array).
+arr2: An array of integers (the comparison array).
+d: A natural number representing the distance threshold.
+
+-----Output-----
+The output is a natural number:
+Returns the count of elements in arr1 such that for each element, all elements in arr2 are at a distance greater than d.

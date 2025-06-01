@@ -1,0 +1,10 @@
+{
+    "name": "hIndex",
+    "parameters": [
+        {
+            "param_name": "citations",
+            "param_type": "Array Nat"
+        }
+    ],
+    "return_type": "Nat"
+}
