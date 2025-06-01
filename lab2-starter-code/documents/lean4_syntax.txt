@@ -1,0 +1,86 @@
+# Lean 4 Syntax and Structure Guide
+
+## Function Definitions
+Basic function structure in Lean 4:
+def functionName (param1 : Type1) (param2 : Type2) : ReturnType := implementation
+
+Examples of function signatures:
+- def identity (x : Nat) : Nat := ...
+- def compare (a b : Int) : Bool := ...
+- def process (arr : Array Int) : Array Int := ...
+
+<EOC>
+
+## Conditional Logic Patterns
+If-then-else syntax:
+if condition then value1 else value2
+
+Pattern for boolean conditions:
+if a ≤ b then ... else ...
+if x > 0 then ... else ...
+
+Multiple conditions:
+if cond1 then val1 else if cond2 then val2 else val3
+
+<EOC>
+
+## Type System Fundamentals
+Common types in Lean 4:
+- Nat: Natural numbers (0, 1, 2, ...)
+- Int: Integers (..., -1, 0, 1, ...)
+- Bool: Boolean values (true, false)
+- Array T: Arrays of type T
+- Prop: Propositions for specifications
+
+Type conversion:
+- ↑n converts Nat to Int
+- Int.natAbs converts Int to Nat
+
+<EOC>
+
+## Array Operations
+Basic array operations:
+- arr.size : Get array length
+- arr[i]! : Access element at index i
+- arr.map f : Apply function f to all elements
+- arr.any p : Check if any element satisfies predicate p
+- arr.all p : Check if all elements satisfy predicate p
+- arr.contains x : Check if array contains element x
+
+Array creation:
+#[elem1, elem2, elem3] creates an array
+
+<EOC>
+
+## Arithmetic and Comparison
+Basic arithmetic:
+- Addition: a + b
+- Subtraction: a - b  
+- Multiplication: a * b
+- Division: a / b
+- Modulo: a % b
+
+Comparison operators:
+- Equality: a = b
+- Less than: a < b
+- Less than or equal: a ≤ b (typed as \le)
+- Greater than: a > b
+- Greater than or equal: a ≥ b (typed as \ge)
+
+<EOC>
+
+## Logical Operators
+Logical operations in Lean 4:
+- And: ∧ (typed as nd)
+- Or: ∨ (typed as \or)  
+- Not: ¬ (typed as 
+ot)
+- Implication: → (typed as 	o)
+- Equivalence: ↔ (typed as \iff)
+
+Boolean operations:
+- true, false
+- &&, || for boolean and/or
+- ! for boolean not
+
+<EOC>

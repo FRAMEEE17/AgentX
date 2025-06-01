@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import Mathlib
 import Aesop
 
@@ -21,27 +20,3 @@ theorem hasOppositeSign_spec_satisfied (a : Int) (b : Int) :
   unfold hasOppositeSign hasOppositeSign_spec
   {{proof}}
   -- << PROOF END >>
-=======
-import Mathlib
-import Aesop
-
--- Implementation
-def hasOppositeSign (a : Int) (b : Int) : Bool :=
-  -- << CODE START >>
-  {{code}}
-  -- << CODE END >>
-
-
--- Theorem: The result is true if a and b have opposite signs
-def hasOppositeSign_spec (a : Int) (b : Int) (result: Bool) : Prop :=
-  -- << SPEC START >>
-  (a < 0 ∧ b > 0) ∨ (a > 0 ∧ b < 0) ↔ result
-  -- << SPEC END >>
-
-theorem hasOppositeSign_spec_satisfied (a : Int) (b : Int) :
-  hasOppositeSign_spec a b (hasOppositeSign a b) := by
-  -- << PROOF START >>
-  unfold hasOppositeSign hasOppositeSign_spec
-  {{proof}}
-  -- << PROOF END >>
->>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed

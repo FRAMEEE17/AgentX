@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for Lab 2 Lean 4 RAG system.
-Run this script to initialize the knowledge base before running the main workflow.
+Enhanced RAG setup with genuine knowledge patterns (no hardcoded solutions)
 """
 
 import os
@@ -16,512 +15,486 @@ try:
     from src.embedding_models import OpenAIEmbeddingModel
 except ImportError as e:
     print(f"Error importing modules: {e}")
-    print("Make sure you're running from the project root directory")
     sys.exit(1)
 
 
-def create_lean4_knowledge_base():    
-    print("Setting up Lean 4 RAG Knowledge Base...")
+def create_lean4_knowledge_base():
+    """Create knowledge base with Lean 4 patterns and techniques (no solutions)"""
     
     # Ensure documents directory exists
     os.makedirs("documents", exist_ok=True)
     
-    # Create Lean 4 specific documentation
-    print("Creating Lean 4 documentation files...")
-    create_lean4_basics_doc()
-    create_lean4_proof_patterns_doc() 
-    create_lean4_common_tactics_doc()
-    create_lean4_mathlib_examples_doc()
-    create_lean4_error_recovery_doc()
+    # Create comprehensive Lean 4 knowledge
+    create_lean4_syntax_guide()
+    create_proof_strategy_guide()
+    create_common_patterns_guide()
+    create_error_recovery_guide()
+    create_mathlib_reference()
     
-    # Initialize RAG database
-    print("..Creating embeddings database...")
-    try:
-        embedding_model = OpenAIEmbeddingModel()
-        
-        vector_db = VectorDB(
-            directory="documents",
-            vector_file="embeddings.npy",  # Use standard filename
-            embedding_model=embedding_model
-        )
-        
-        print("✅ Lean 4 RAG database created successfully!")
-        print(f"Database file: embeddings.npy")
-        print(f"Chunks file: embeddings_chunks.pkl")
-        return vector_db
-        
-    except Exception as e:
-        print(f"❌ Error creating RAG database: {e}")
-        print("Make sure your OPENAI_API_KEY is set correctly")
-        return None
+    print("✅ Created comprehensive Lean 4 knowledge base")
 
 
-def create_lean4_basics_doc():
-    """Create basic Lean 4 syntax and patterns documentation."""
-    content = """# Lean 4 Basic Patterns
+def create_lean4_syntax_guide():
+    """Create Lean 4 syntax and structure guide"""
+    content = """# Lean 4 Syntax and Structure Guide
 
 ## Function Definitions
-Simple identity function:
-def ident (x : Nat) : Nat := x
+Basic function structure in Lean 4:
+def functionName (param1 : Type1) (param2 : Type2) : ReturnType := implementation
 
-Conditional function:
-def myMin (a b : Int) : Int := if a ≤ b then a else b
-
-Pattern matching:
-def factorial : Nat → Nat
-  | 0 => 1
-  | n + 1 => (n + 1) * factorial n
+Examples of function signatures:
+- def identity (x : Nat) : Nat := ...
+- def compare (a b : Int) : Bool := ...
+- def process (arr : Array Int) : Array Int := ...
 
 <EOC>
 
-## Common Data Types
-Natural numbers: Nat
-Integers: Int  
-Booleans: Bool
-Arrays: Array T
-Lists: List T
+## Conditional Logic Patterns
+If-then-else syntax:
+if condition then value1 else value2
 
-Type conversions:
-Int.natAbs : Int → Nat
-↑n : Nat → Int (coercion)
+Pattern for boolean conditions:
+if a ≤ b then ... else ...
+if x > 0 then ... else ...
 
-<EOC>
-
-## Basic Operators
-Arithmetic: +, -, *, /, %
-Comparison: =, ≠, <, ≤, >, ≥
-Logical: ∧, ∨, ¬, →, ↔
-Array access: arr[i]!, arr.get! i
+Multiple conditions:
+if cond1 then val1 else if cond2 then val2 else val3
 
 <EOC>
 
-## Function Signatures for Common Tasks
-Identity: def ident (x : T) : T := x
-Minimum of two: def min2 (a b : Int) : Int := if a ≤ b then a else b  
-Minimum of three: def min3 (a b c : Int) : Int := min2 (min2 a b) c
-Multiplication: def mult (a b : Int) : Int := a * b
-Divisibility check: def isDivisible (n d : Int) : Bool := n % d = 0
-Array map: def arrayMap (f : T → U) (arr : Array T) : Array U := arr.map f
-Common element check: def hasCommon (a b : Array T) : Bool := a.any (fun x => b.contains x)
+## Type System Fundamentals
+Common types in Lean 4:
+- Nat: Natural numbers (0, 1, 2, ...)
+- Int: Integers (..., -1, 0, 1, ...)
+- Bool: Boolean values (true, false)
+- Array T: Arrays of type T
+- Prop: Propositions for specifications
+
+Type conversion:
+- ↑n converts Nat to Int
+- Int.natAbs converts Int to Nat
 
 <EOC>
 
-## Specifications
-Simple equality spec:
-def func_spec (input : T) (result : U) : Prop := result = expected
+## Array Operations
+Basic array operations:
+- arr.size : Get array length
+- arr[i]! : Access element at index i
+- arr.map f : Apply function f to all elements
+- arr.any p : Check if any element satisfies predicate p
+- arr.all p : Check if all elements satisfy predicate p
+- arr.contains x : Check if array contains element x
 
-Complex spec with multiple conditions:
-def complex_spec (input : T) (result : U) : Prop := 
-  condition1 ∧ condition2 ∧ result = expected
+Array creation:
+#[elem1, elem2, elem3] creates an array
 
-Array spec pattern:
-def array_spec (input : Array T) (result : Array U) : Prop :=
-  result.size = input.size ∧ 
-  ∀ i, i < input.size → result[i]! = transform input[i]!
-"""
+<EOC>
+
+## Arithmetic and Comparison
+Basic arithmetic:
+- Addition: a + b
+- Subtraction: a - b  
+- Multiplication: a * b
+- Division: a / b
+- Modulo: a % b
+
+Comparison operators:
+- Equality: a = b
+- Less than: a < b
+- Less than or equal: a ≤ b (typed as \le)
+- Greater than: a > b
+- Greater than or equal: a ≥ b (typed as \ge)
+
+<EOC>
+
+## Logical Operators
+Logical operations in Lean 4:
+- And: ∧ (typed as \and)
+- Or: ∨ (typed as \or)  
+- Not: ¬ (typed as \not)
+- Implication: → (typed as \to)
+- Equivalence: ↔ (typed as \iff)
+
+Boolean operations:
+- true, false
+- &&, || for boolean and/or
+- ! for boolean not
+
+<EOC>"""
     
-    with open("documents/lean4_basics.txt", "w") as f:
+    with open("documents/lean4_syntax.txt", "w") as f:
         f.write(content)
 
 
-def create_lean4_proof_patterns_doc():
-    """Create Lean 4 proof patterns and tactics documentation."""
-    content = """# Lean 4 Proof Patterns
+def create_proof_strategy_guide():
+    """Create proof strategy and tactics guide"""
+    content = """# Lean 4 Proof Strategies and Tactics
 
 ## Basic Proof Structure
+Standard proof template:
 theorem name (params) : statement := by
   tactics
 
-example (params) : statement := by
-  tactics
-
-<EOC>
-
-## Essential Tactics
-unfold: Expand definition
-simp: Simplify expressions
-rw [lemma]: Rewrite using lemma
-cases: Case analysis
-constructor: Build structure
-exact: Provide exact proof
-apply: Apply function/theorem
-assumption: Use hypothesis
-rfl: Reflexivity
-
-<EOC>
-
-## Proving Equality
-For definitional equality:
-def f (x : Nat) : Nat := x
-theorem f_eq (x : Nat) : f x = x := by
-  unfold f
-  rfl
-
-<EOC>
-
-## Proving Specifications
-Basic specification proof pattern:
-def func_spec (input : T) (result : U) : Prop := 
-  result = expected_value
-
-theorem func_spec_satisfied (input : T) :
-  func_spec input (func input) := by
+Example structure:
+theorem func_correct (input) : specification := by
   unfold func func_spec
-  rfl
+  proof_tactics
+
+<EOC>
+
+## Essential Tactics Overview
+Core tactics for theorem proving:
+- unfold: Expand function and specification definitions
+- simp: Simplify expressions using built-in rules
+- rfl: Prove reflexive equality (a = a)
+- exact: Provide exact proof term
+- constructor: Build conjunction (A ∧ B)
+- left/right: Choose disjunction branch (A ∨ B)
+- cases: Case analysis on conditions
+- by_cases: Split proof by boolean condition
+
+<EOC>
+
+## Proof Strategy for Specifications
+General approach to proving specifications:
+1. Start with: unfold function_name function_spec
+2. Simplify with: simp
+3. Handle conditionals with: by_cases h : condition
+4. Build conjunctions with: constructor
+5. Prove each part separately
+6. Use exact or rfl for final steps
 
 <EOC>
 
 ## Conditional Logic Proofs
-For if-then-else:
-theorem cond_proof (condition : Prop) [Decidable condition] (a b : T) :
-  spec (if condition then a else b) := by
-  by_cases h : condition
-  · simp [h]
-    -- prove for true case
-  · simp [h]  
-    -- prove for false case
-
-<EOC>
-
-## Array Specifications
-Array size preservation:
-theorem array_size_preserved (arr : Array T) :
-  (transform arr).size = arr.size := by
-  unfold transform
-  simp [Array.size_map]
-
-Element-wise properties:
-theorem array_elements (arr : Array T) (i : Nat) (h : i < arr.size) :
-  (transform arr)[i]! = transform_element arr[i]! := by
-  unfold transform
-  simp [Array.getElem_map]
-
-<EOC>
-
-## Logical Connectives
-And (∧):
-constructor
-· -- prove first part
-· -- prove second part
-
-Or (∨):
-left  -- prove left disjunct
--- or
-right -- prove right disjunct
-
-Iff (↔):
-constructor
-· -- prove forward direction
-· -- prove backward direction
-
-<EOC>
-
-## Common Proof Patterns by Problem Type
-Identity function:
-unfold ident ident_spec
-rfl
-
-Arithmetic operations:
-unfold operation operation_spec  
-ring -- for arithmetic simplification
-
-Comparison operations:
-unfold comparison comparison_spec
+Proving properties of if-then-else:
 by_cases h : condition
-· simp [h]
-· simp [h]
+· simp [h]  -- Case when condition is true
+  prove_true_case
+· simp [h]  -- Case when condition is false  
+  prove_false_case
 
-Array operations:
-unfold operation operation_spec
-simp [Array.size_map, Array.getElem_map]
-"""
-    
-    with open("documents/lean4_proof_patterns.txt", "w") as f:
+Common pattern for boolean functions:
+simp only [decide_eq_true_iff]
+
+<EOC>
+
+## Array Proof Patterns
+Proving array properties:
+1. Size preservation: simp [Array.size_map]
+2. Element access: simp [Array.getElem_map]
+3. Existential properties: use specific indices
+4. Universal properties: intro i h; prove for arbitrary i
+
+Array membership proofs:
+- Use Array.any_eq_true for existence
+- Use Array.all_eq_true for universals
+- Use Array.contains_def for membership
+
+<EOC>
+
+## Arithmetic Proof Techniques
+Proving arithmetic properties:
+- Use linarith for linear arithmetic
+- Use norm_num for numerical computations
+- Use ring for ring operations
+- Use exact Nat.zero_le _ for non-negativity
+- Use Nat.mod_lt for modulo bounds
+
+<EOC>
+
+## Error Recovery Strategies
+When proofs fail:
+1. Check if all definitions are unfolded
+2. Verify simp is applied appropriately
+3. Ensure all cases are handled
+4. Check for missing constructors
+5. Add intermediate lemmas if needed
+
+Common fixes:
+- Add push_neg at h for negation handling
+- Use exact h for direct hypothesis application
+- Use assumption when goal matches hypothesis
+
+<EOC>"""
+
+    with open("documents/lean4_proofs.txt", "w") as f:
         f.write(content)
 
 
-def create_lean4_common_tactics_doc():
-    """Create documentation for common Lean 4 tactics and their usage."""
-    content = """# Lean 4 Common Tactics Guide
+def create_common_patterns_guide():
+    """Create guide for common programming patterns"""
+    content = """# Common Lean 4 Programming Patterns
 
-## Simplification Tactics
-simp: Automatic simplification using simp lemmas
-simp [lemma1, lemma2]: Simplification with specific lemmas
-simp only [lemma]: Simplification with only specified lemmas
-dsimp: Definitional simplification
-norm_num: Normalize numerical expressions
+## Identity and Basic Functions
+Identity function pattern:
+- Input: single parameter
+- Output: same parameter unchanged
+- Implementation: return the parameter directly
 
-<EOC>
-
-## Rewriting Tactics  
-rw [lemma]: Rewrite using equality lemma
-rw [← lemma]: Rewrite in reverse direction
-rw [lemma] at h: Rewrite in hypothesis h
-rw [lemma1, lemma2]: Chain multiple rewrites
+Arithmetic function patterns:
+- Binary operations: combine two inputs with operator
+- Unary operations: transform single input
+- Comparison functions: return boolean result
 
 <EOC>
 
-## Case Analysis
-cases h: Case split on hypothesis h
-by_cases h : P: Case split on decidable proposition P
-split: Split on if-then-else or match expressions
-induction h: Proof by induction
+## Comparison and Ordering
+Minimum/maximum patterns:
+- Two-way comparison: use conditional on ≤ relation
+- Multi-way comparison: nested conditionals or library functions
+- Array min/max: use folding or library functions
+
+Boolean logic patterns:
+- Opposite conditions: check sign combinations
+- Divisibility: use modulo operation (n % d = 0)
+- Range checking: combine upper and lower bounds
 
 <EOC>
 
-## Goal Management
-constructor: Apply constructor of inductive type
-exact proof: Provide exact proof term
-apply lemma: Apply function/lemma to goal
-have h : P := proof: Introduce local hypothesis
-suffices h : P: Prove goal by proving P
+## Array Processing Patterns
+Transformation patterns:
+- Element-wise transformation: use Array.map
+- Filtering: use Array.filter
+- Reduction: use Array.foldl or Array.foldr
+
+Search patterns:
+- Existence check: use Array.any
+- Universal check: use Array.all  
+- Membership test: use Array.contains
+- Element finding: use Array.find?
 
 <EOC>
 
-## Logical Tactics
-left/right: Choose disjunct in A ∨ B
-exfalso: Prove goal from contradiction
-contradiction: Find contradiction in hypotheses
-tauto: Solve tautologies
-decide: Solve decidable propositions
+## Mathematical Operations
+Digit extraction:
+- Last digit: use modulo 10 operation
+- Digit separation: combine division and modulo
+- Number reconstruction: use powers of 10
+
+Geometric calculations:
+- Area computations: multiply dimensions
+- Volume calculations: multiply length × width × height
+- Surface area: sum of face areas
 
 <EOC>
 
-## Arithmetic Tactics
-ring: Solve ring equations
-field_simp: Simplify field expressions  
-norm_num: Normalize numbers
-omega: Linear arithmetic over integers
-linarith: Linear arithmetic
+## Conditional Logic Design
+Two-branch conditionals:
+- Compare values and return appropriate branch
+- Handle edge cases (equality, zero, etc.)
+- Ensure all paths return correct type
+
+Multi-branch logic:
+- Use nested if-then-else for multiple conditions
+- Consider all possible cases
+- Optimize for readability and proof simplicity
 
 <EOC>
 
-## Array-Specific Tactics
-Array.ext: Array extensionality
-Array.get_set_eq: Array update lemmas
-Array.size_*: Array size lemmas
-Array.mem_*: Array membership lemmas
+## Type-Driven Development
+Design by specification:
+- Start with the specification requirements
+- Choose implementation that makes proof easier
+- Structure code to match proof obligations
+- Use types to enforce correctness
 
-<EOC>
+Proof-oriented programming:
+- Make invariants explicit in code structure
+- Choose representations that simplify proofs
+- Avoid unnecessary complexity in implementation
 
-## Common Tactic Combinations
-For basic equality proofs:
-unfold definitions
-rfl
+<EOC>"""
 
-For conditional proofs:
-by_cases h : condition
-· simp [h]
-  -- specific proof
-· simp [h]
-  -- specific proof
-
-For array proofs:
-constructor
-· -- prove size equality
-  simp [Array.size_map]
-· -- prove element equality  
-  intro i h
-  simp [Array.getElem_map]
-
-For specification proofs:
-unfold function_name spec_name
--- then appropriate tactics based on definition
-"""
-    
-    with open("documents/lean4_tactics.txt", "w") as f:
+    with open("documents/lean4_patterns.txt", "w") as f:
         f.write(content)
 
 
-def create_lean4_mathlib_examples_doc():
-    """Create Mathlib usage examples for common operations."""
-    content = """# Lean 4 Mathlib Examples
+def create_error_recovery_guide():
+    """Create error recovery and debugging guide"""
+    content = """# Lean 4 Error Recovery and Debugging
 
-## Integer Operations
-min function: min a b (from Mathlib)
-max function: max a b (from Mathlib)
-absolute value: Int.natAbs n
-divisibility: n ∣ m (n divides m)
+## Common Compilation Errors
+Syntax errors:
+- Check parentheses and bracket matching
+- Verify function signature syntax
+- Ensure proper import statements
+- Check for typos in keywords (def, theorem, by)
 
-Useful lemmas:
-min_le_left: min a b ≤ a
-min_le_right: min a b ≤ b  
-le_min_iff: c ≤ min a b ↔ c ≤ a ∧ c ≤ b
-
-<EOC>
-
-## Natural Number Operations
-Nat.mod: n % m
-Nat.div: n / m
-Nat.gcd: greatest common divisor
-Nat.lcm: least common multiple
-
-Useful lemmas:
-Nat.mod_lt: n % m < m (when m > 0)
-Nat.div_mul_cancel: (n * m) / m = n (when m > 0)
+Type errors:
+- Verify parameter types match usage
+- Check return type consistency
+- Use type annotations when needed
+- Convert between Nat and Int as needed
 
 <EOC>
 
-## Array Operations from Mathlib
-Array.map: Transform elements
-Array.filter: Filter elements  
-Array.foldl: Left fold
-Array.foldr: Right fold
-Array.all: Check all elements
-Array.any: Check any element
-Array.contains: Membership test
+## Proof Errors and Solutions
+Unsolved goals:
+- Check if all cases are handled
+- Verify constructor is used for conjunctions
+- Ensure left/right for disjunctions
+- Add missing exact or assumption
 
-<EOC>
-
-## List Operations (Alternative to Arrays)
-List.map: Transform elements
-List.filter: Filter elements
-List.all: Check all elements  
-List.any: Check any element
-List.mem: Membership test
-List.length: Get length
-
-<EOC>
-
-## Common Mathlib Tactics
-exact?: Search for exact proof
-apply?: Search for applicable lemma
-simp?: Show what simp can prove
-library_search: Search library for proof
-suggest: Suggest applicable tactics
-
-<EOC>
-
-## Boolean Operations
-Bool.decide: Convert decidable proposition to Bool
-if condition then true else false patterns
-Bool.and, Bool.or, Bool.not operations
-
-<EOC>
-
-## Comparison Operations
-Decidable equality: a = b (automatically decidable for most types)
-Linear order: a < b, a ≤ b, a > b, a ≥ b
-min and max operations with associated lemmas
-
-<EOC>
-
-## Working with Decidable Propositions
-if h : P then ... else ... (pattern matching on decidability)
-Decidable.decide: Convert to boolean
-Classical reasoning when needed: classical or by_contra
-"""
-    
-    with open("documents/lean4_mathlib.txt", "w") as f:
-        f.write(content)
-
-
-def create_lean4_error_recovery_doc():
-    """Create documentation for common errors and how to fix them."""
-    content = """# Lean 4 Error Recovery Guide
-
-## Type Mismatch Errors
-Error: "type mismatch"
-Solution: Check expected vs actual types
-- Use type annotations: (expr : Type)
-- Use coercions: ↑n for Nat to Int
-- Check function signatures match usage
-
-<EOC>
-
-## Undefined Function Errors  
-Error: "unknown identifier"
-Solution: Check function is in scope
-- Import required modules: import Mathlib
-- Check spelling and capitalization
-- Ensure function is defined before use
-
-<EOC>
-
-## Proof Errors
-Error: "tactic failed" or "unsolved goals"
-Solution: Check proof completeness
-- Use sorry temporarily to isolate issues
-- Check all cases are covered
-- Verify hypothesis names and types
-
-<EOC>
-
-## Array Index Errors
-Error: "array index out of bounds"
-Solution: Provide bounds proofs
-- Use h : i < arr.size hypotheses
-- Use Array.get! for panic on bounds error
-- Use Array.get? for Option return
-
-<EOC>
-
-## Simplification Failures
-Error: "simp failed to simplify"
-Solution: Add explicit lemmas or use different tactics
-- simp [specific_lemma]
-- unfold definitions manually
-- Use rw instead of simp
-- Break into smaller steps
-
-<EOC>
-
-## Pattern Matching Errors
-Error: "non-exhaustive pattern"
-Solution: Cover all cases
-- Add wildcard pattern: | _ => default_case
-- Check all constructors are handled
-- Use cases tactic in proofs
-
-<EOC>
-
-## Common Quick Fixes
-Compilation errors:
-1. Check imports at top of file
-2. Verify syntax (def, theorem, example keywords)
-3. Check parentheses and bracket matching
-4. Verify function signatures match implementation
-
-Proof errors:
-1. Start with unfold for all custom definitions
-2. Use simp for basic arithmetic
-3. Use cases/by_cases for conditionals
-4. Use constructor for And/Exists goals
-5. Use exact for providing terms
+Tactic failures:
+- Try different simplification approaches
+- Break complex proofs into steps
+- Use intermediate lemmas
+- Check hypothesis names and types
 
 <EOC>
 
 ## Debugging Strategies
-Use #check to verify types
-Use #eval to test functions  
-Use sorry to isolate proof steps
-Use trace tactics to see intermediate goals
-Break complex proofs into lemmas
+Systematic debugging:
+1. Isolate the failing component
+2. Test with simpler inputs
+3. Check each proof step individually
+4. Use sorry temporarily to isolate issues
+5. Verify all imports are correct
+
+Proof debugging:
+- Add intermediate proof steps
+- Use #check to verify types
+- Test with concrete examples
+- Simplify complex expressions
 
 <EOC>
 
-## Recovery from Failed Attempts
-If direct approach fails:
-1. Try library functions (min, max from Mathlib)
-2. Simplify implementation (remove optimizations)
-3. Use more basic tactics (avoid advanced automation)
-4. Break specification into smaller parts
-5. Use classical logic if constructive fails
+## Recovery from Failed Approaches
+When direct approach fails:
+- Try using library functions instead
+- Simplify the implementation
+- Break problem into smaller parts
+- Use different proof strategies
+- Consider alternative data representations
 
-If proof fails:
-1. Check if definition unfolds correctly
-2. Try manual case analysis instead of automation
-3. Use intermediate lemmas
-4. Simplify specification if possible
-5. Check for missing imports or lemmas
-"""
-    
-    with open("documents/lean4_errors.txt", "w") as f:
+Fallback strategies:
+- Use more basic tactics instead of automation
+- Avoid complex metaprogramming
+- Use classical logic if constructive fails
+- Simplify specifications if possible
+
+<EOC>
+
+## Best Practices for Robust Code
+Defensive programming:
+- Handle edge cases explicitly
+- Use clear, readable implementations
+- Avoid overly clever optimizations
+- Choose simple over complex when possible
+
+Maintainable proofs:
+- Use descriptive variable names
+- Break long proofs into lemmas
+- Comment complex proof steps
+- Structure proofs logically
+
+<EOC>"""
+
+    with open("documents/lean4_debugging.txt", "w") as f:
+        f.write(content)
+
+
+def create_mathlib_reference():
+    """Create Mathlib library reference"""
+    content = """# Lean 4 Mathlib Library Reference
+
+## Essential Library Functions
+Comparison and ordering:
+- min: minimum of two values
+- max: maximum of two values  
+- Nat.min, Int.min: type-specific minimums
+- Nat.max, Int.max: type-specific maximums
+
+Arithmetic operations:
+- Standard operators: +, -, *, /, %
+- Nat.mod: natural number modulo
+- Int.natAbs: absolute value to natural number
+- Nat.pow: exponentiation
+
+<EOC>
+
+## Array Library Functions
+Core array operations:
+- Array.size: get array length
+- Array.get!: safe element access
+- Array.map: transform all elements
+- Array.filter: select elements by predicate
+
+Search and test operations:
+- Array.any: test if any element satisfies condition
+- Array.all: test if all elements satisfy condition
+- Array.contains: membership testing
+- Array.find?: find first matching element
+
+<EOC>
+
+## Useful Lemmas for Proofs
+Comparison lemmas:
+- min_le_left: min a b ≤ a
+- min_le_right: min a b ≤ b
+- le_min_iff: c ≤ min a b ↔ c ≤ a ∧ c ≤ b
+- min_comm: min a b = min b a
+
+Array lemmas:
+- Array.size_map: (arr.map f).size = arr.size
+- Array.getElem_map: (arr.map f)[i] = f (arr[i])
+- Array.any_eq_true: equivalence for existence
+- Array.all_eq_true: equivalence for universals
+
+<EOC>
+
+## Natural Number Properties
+Basic properties:
+- Nat.zero_le: 0 ≤ n for any natural n
+- Nat.mod_lt: n % m < m when m > 0
+- Nat.div_mul_cancel: cancellation properties
+- Nat.mod_add_div: division algorithm
+
+Useful for digit operations:
+- Properties of modulo 10
+- Division by powers of 10
+- Digit extraction techniques
+
+<EOC>
+
+## Boolean Decision Procedures
+Decidability:
+- decide_eq_true_iff: converts decidable propositions
+- Bool.decide: proposition to boolean conversion
+- Classical reasoning when needed
+
+Common decidable propositions:
+- Equality on basic types
+- Ordering relations
+- Arithmetic properties
+- Boolean combinations
+
+<EOC>
+
+## Proof Automation
+Simplification tactics:
+- simp: uses simp lemmas automatically
+- simp only [lemmas]: restricted simplification
+- norm_num: numerical computations
+- ring: ring equation solving
+
+Linear arithmetic:
+- linarith: linear arithmetic decision procedure
+- omega: linear arithmetic over integers
+- Use for comparison and arithmetic goals
+
+<EOC>"""
+
+    with open("documents/mathlib_reference.txt", "w") as f:
         f.write(content)
 
 
 def main():
-    print("=" * 50)
+    """Main setup function"""
+    print("=" * 60)
+    print("Enhanced RAG Setup for Tree of Thoughts Lab 2")
+    print("=" * 60)
     
     # Check if OpenAI API key is set
     if not os.getenv("OPENAI_API_KEY"):
@@ -531,20 +504,33 @@ def main():
         return False
     
     # Create knowledge base
-    vector_db = create_lean4_knowledge_base()
+    create_lean4_knowledge_base()
     
-    if vector_db:
-        print("\n✅ Setup completed successfully!")
-        print("\n📋 Next steps:")
-        print("   1. Run 'make test' to test your implementation")
-        print("   2. Check the generated embeddings.npy and embeddings_chunks.pkl files")
-        print("   3. Your main_workflow function is ready to use the RAG system")
+    # Initialize RAG database
+    print("Creating embeddings database...")
+    try:
+        embedding_model = OpenAIEmbeddingModel()
+        
+        vector_db = VectorDB(
+            directory="documents",
+            vector_file="embeddings.npy",
+            embedding_model=embedding_model
+        )
+        
+        print("✅ Enhanced RAG database created successfully!")
+        print("✅ Knowledge base contains Lean 4 techniques and patterns")
+        print("✅ No hardcoded solutions - only genuine knowledge")
         return True
-    else:
-        print("\n❌ Setup failed!")
+        
+    except Exception as e:
+        print(f"❌ Error creating RAG database: {e}")
         return False
 
 
 if __name__ == "__main__":
     success = main()
+    print("\n📋 Next Steps:")
+    print("   1. Replace src/main.py with the Tree of Thoughts implementation")
+    print("   2. Test with: python test_runner.py --task task_id_0")
+    print("   3. The system now uses genuine AI reasoning instead of hardcoding")
     sys.exit(0 if success else 1)

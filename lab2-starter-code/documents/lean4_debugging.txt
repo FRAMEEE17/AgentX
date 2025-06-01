@@ -1,0 +1,78 @@
+# Lean 4 Error Recovery and Debugging
+
+## Common Compilation Errors
+Syntax errors:
+- Check parentheses and bracket matching
+- Verify function signature syntax
+- Ensure proper import statements
+- Check for typos in keywords (def, theorem, by)
+
+Type errors:
+- Verify parameter types match usage
+- Check return type consistency
+- Use type annotations when needed
+- Convert between Nat and Int as needed
+
+<EOC>
+
+## Proof Errors and Solutions
+Unsolved goals:
+- Check if all cases are handled
+- Verify constructor is used for conjunctions
+- Ensure left/right for disjunctions
+- Add missing exact or assumption
+
+Tactic failures:
+- Try different simplification approaches
+- Break complex proofs into steps
+- Use intermediate lemmas
+- Check hypothesis names and types
+
+<EOC>
+
+## Debugging Strategies
+Systematic debugging:
+1. Isolate the failing component
+2. Test with simpler inputs
+3. Check each proof step individually
+4. Use sorry temporarily to isolate issues
+5. Verify all imports are correct
+
+Proof debugging:
+- Add intermediate proof steps
+- Use #check to verify types
+- Test with concrete examples
+- Simplify complex expressions
+
+<EOC>
+
+## Recovery from Failed Approaches
+When direct approach fails:
+- Try using library functions instead
+- Simplify the implementation
+- Break problem into smaller parts
+- Use different proof strategies
+- Consider alternative data representations
+
+Fallback strategies:
+- Use more basic tactics instead of automation
+- Avoid complex metaprogramming
+- Use classical logic if constructive fails
+- Simplify specifications if possible
+
+<EOC>
+
+## Best Practices for Robust Code
+Defensive programming:
+- Handle edge cases explicitly
+- Use clear, readable implementations
+- Avoid overly clever optimizations
+- Choose simple over complex when possible
+
+Maintainable proofs:
+- Use descriptive variable names
+- Break long proofs into lemmas
+- Comment complex proof steps
+- Structure proofs logically
+
+<EOC>

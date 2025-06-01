@@ -1,0 +1,88 @@
+# Lean 4 Mathlib Library Reference
+
+## Essential Library Functions
+Comparison and ordering:
+- min: minimum of two values
+- max: maximum of two values  
+- Nat.min, Int.min: type-specific minimums
+- Nat.max, Int.max: type-specific maximums
+
+Arithmetic operations:
+- Standard operators: +, -, *, /, %
+- Nat.mod: natural number modulo
+- Int.natAbs: absolute value to natural number
+- Nat.pow: exponentiation
+
+<EOC>
+
+## Array Library Functions
+Core array operations:
+- Array.size: get array length
+- Array.get!: safe element access
+- Array.map: transform all elements
+- Array.filter: select elements by predicate
+
+Search and test operations:
+- Array.any: test if any element satisfies condition
+- Array.all: test if all elements satisfy condition
+- Array.contains: membership testing
+- Array.find?: find first matching element
+
+<EOC>
+
+## Useful Lemmas for Proofs
+Comparison lemmas:
+- min_le_left: min a b ≤ a
+- min_le_right: min a b ≤ b
+- le_min_iff: c ≤ min a b ↔ c ≤ a ∧ c ≤ b
+- min_comm: min a b = min b a
+
+Array lemmas:
+- Array.size_map: (arr.map f).size = arr.size
+- Array.getElem_map: (arr.map f)[i] = f (arr[i])
+- Array.any_eq_true: equivalence for existence
+- Array.all_eq_true: equivalence for universals
+
+<EOC>
+
+## Natural Number Properties
+Basic properties:
+- Nat.zero_le: 0 ≤ n for any natural n
+- Nat.mod_lt: n % m < m when m > 0
+- Nat.div_mul_cancel: cancellation properties
+- Nat.mod_add_div: division algorithm
+
+Useful for digit operations:
+- Properties of modulo 10
+- Division by powers of 10
+- Digit extraction techniques
+
+<EOC>
+
+## Boolean Decision Procedures
+Decidability:
+- decide_eq_true_iff: converts decidable propositions
+- Bool.decide: proposition to boolean conversion
+- Classical reasoning when needed
+
+Common decidable propositions:
+- Equality on basic types
+- Ordering relations
+- Arithmetic properties
+- Boolean combinations
+
+<EOC>
+
+## Proof Automation
+Simplification tactics:
+- simp: uses simp lemmas automatically
+- simp only [lemmas]: restricted simplification
+- norm_num: numerical computations
+- ring: ring equation solving
+
+Linear arithmetic:
+- linarith: linear arithmetic decision procedure
+- omega: linear arithmetic over integers
+- Use for comparison and arithmetic goals
+
+<EOC>

@@ -1,0 +1,89 @@
+# Lean 4 Proof Strategies and Tactics
+
+## Basic Proof Structure
+Standard proof template:
+theorem name (params) : statement := by
+  tactics
+
+Example structure:
+theorem func_correct (input) : specification := by
+  unfold func func_spec
+  proof_tactics
+
+<EOC>
+
+## Essential Tactics Overview
+Core tactics for theorem proving:
+- unfold: Expand function and specification definitions
+- simp: Simplify expressions using built-in rules
+- rfl: Prove reflexive equality (a = a)
+- exact: Provide exact proof term
+- constructor: Build conjunction (A ∧ B)
+- left/right: Choose disjunction branch (A ∨ B)
+- cases: Case analysis on conditions
+- by_cases: Split proof by boolean condition
+
+<EOC>
+
+## Proof Strategy for Specifications
+General approach to proving specifications:
+1. Start with: unfold function_name function_spec
+2. Simplify with: simp
+3. Handle conditionals with: by_cases h : condition
+4. Build conjunctions with: constructor
+5. Prove each part separately
+6. Use exact or rfl for final steps
+
+<EOC>
+
+## Conditional Logic Proofs
+Proving properties of if-then-else:
+by_cases h : condition
+· simp [h]  -- Case when condition is true
+  prove_true_case
+· simp [h]  -- Case when condition is false  
+  prove_false_case
+
+Common pattern for boolean functions:
+simp only [decide_eq_true_iff]
+
+<EOC>
+
+## Array Proof Patterns
+Proving array properties:
+1. Size preservation: simp [Array.size_map]
+2. Element access: simp [Array.getElem_map]
+3. Existential properties: use specific indices
+4. Universal properties: intro i h; prove for arbitrary i
+
+Array membership proofs:
+- Use Array.any_eq_true for existence
+- Use Array.all_eq_true for universals
+- Use Array.contains_def for membership
+
+<EOC>
+
+## Arithmetic Proof Techniques
+Proving arithmetic properties:
+- Use linarith for linear arithmetic
+- Use norm_num for numerical computations
+- Use ring for ring operations
+- Use exact Nat.zero_le _ for non-negativity
+- Use Nat.mod_lt for modulo bounds
+
+<EOC>
+
+## Error Recovery Strategies
+When proofs fail:
+1. Check if all definitions are unfolded
+2. Verify simp is applied appropriately
+3. Ensure all cases are handled
+4. Check for missing constructors
+5. Add intermediate lemmas if needed
+
+Common fixes:
+- Add push_neg at h for negation handling
+- Use exact h for direct hypothesis application
+- Use assumption when goal matches hypothesis
+
+<EOC>

@@ -1,0 +1,81 @@
+# Common Lean 4 Programming Patterns
+
+## Identity and Basic Functions
+Identity function pattern:
+- Input: single parameter
+- Output: same parameter unchanged
+- Implementation: return the parameter directly
+
+Arithmetic function patterns:
+- Binary operations: combine two inputs with operator
+- Unary operations: transform single input
+- Comparison functions: return boolean result
+
+<EOC>
+
+## Comparison and Ordering
+Minimum/maximum patterns:
+- Two-way comparison: use conditional on ≤ relation
+- Multi-way comparison: nested conditionals or library functions
+- Array min/max: use folding or library functions
+
+Boolean logic patterns:
+- Opposite conditions: check sign combinations
+- Divisibility: use modulo operation (n % d = 0)
+- Range checking: combine upper and lower bounds
+
+<EOC>
+
+## Array Processing Patterns
+Transformation patterns:
+- Element-wise transformation: use Array.map
+- Filtering: use Array.filter
+- Reduction: use Array.foldl or Array.foldr
+
+Search patterns:
+- Existence check: use Array.any
+- Universal check: use Array.all  
+- Membership test: use Array.contains
+- Element finding: use Array.find?
+
+<EOC>
+
+## Mathematical Operations
+Digit extraction:
+- Last digit: use modulo 10 operation
+- Digit separation: combine division and modulo
+- Number reconstruction: use powers of 10
+
+Geometric calculations:
+- Area computations: multiply dimensions
+- Volume calculations: multiply length × width × height
+- Surface area: sum of face areas
+
+<EOC>
+
+## Conditional Logic Design
+Two-branch conditionals:
+- Compare values and return appropriate branch
+- Handle edge cases (equality, zero, etc.)
+- Ensure all paths return correct type
+
+Multi-branch logic:
+- Use nested if-then-else for multiple conditions
+- Consider all possible cases
+- Optimize for readability and proof simplicity
+
+<EOC>
+
+## Type-Driven Development
+Design by specification:
+- Start with the specification requirements
+- Choose implementation that makes proof easier
+- Structure code to match proof obligations
+- Use types to enforce correctness
+
+Proof-oriented programming:
+- Make invariants explicit in code structure
+- Choose representations that simplify proofs
+- Avoid unnecessary complexity in implementation
+
+<EOC>
