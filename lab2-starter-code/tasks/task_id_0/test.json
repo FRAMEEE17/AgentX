@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
     {
         "input": {
@@ -26,4 +27,34 @@
             0
         ]
     }
+=======
+[
+    {
+        "input": {
+            "x": 1
+        },
+        "expected": 1,
+        "unexpected": [
+            0
+        ]
+    },
+    {
+        "input": {
+            "x": 2
+        },
+        "expected": 2,
+        "unexpected": [
+            0
+        ]
+    },
+    {
+        "input": {
+            "x": 3
+        },
+        "expected": 3,
+        "unexpected": [
+            0
+        ]
+    }
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 ]

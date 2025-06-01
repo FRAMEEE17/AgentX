@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -----Description----- 
 This task requires writing a Lean 4 method that multiplies two integers. The method should return the product of the two input numbers.
 
@@ -8,4 +9,16 @@ b: The second integer.
 
 -----Output-----
 The output is an integer:
+=======
+-----Description----- 
+This task requires writing a Lean 4 method that multiplies two integers. The method should return the product of the two input numbers.
+
+-----Input-----
+The input consists of:
+a: The first integer.
+b: The second integer.
+
+-----Output-----
+The output is an integer:
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 Returns the product of the two input integers (a * b).

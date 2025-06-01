@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -----Description----- 
 This task requires writing a Lean 4 method that determines if a given integer is strictly greater than every element in a provided array. The method should return true only if the integer is larger than each element in the array; otherwise, it should return false.
 
@@ -12,4 +13,20 @@ Returns true if the integer is greater than all elements in the array.
 Returns false if there is at least one element in the array that is greater than or equal to the integer.
 
 -----Note-----
+=======
+-----Description----- 
+This task requires writing a Lean 4 method that determines if a given integer is strictly greater than every element in a provided array. The method should return true only if the integer is larger than each element in the array; otherwise, it should return false.
+
+-----Input-----
+The input consists of:
+n: An integer.
+a: An array of integers.
+
+-----Output-----
+The output is a Boolean value:
+Returns true if the integer is greater than all elements in the array.
+Returns false if there is at least one element in the array that is greater than or equal to the integer.
+
+-----Note-----
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 The array is assumed to be non-null.

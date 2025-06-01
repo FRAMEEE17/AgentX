@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "name": "cubeElements",
     "parameters": [
@@ -7,4 +8,15 @@
         }
     ],
     "return_type": "Array Int"
+=======
+{
+    "name": "cubeElements",
+    "parameters": [
+        {
+            "param_name": "a",
+            "param_type": "Array Int"
+        }
+    ],
+    "return_type": "Array Int"
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 }

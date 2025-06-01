@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 -----Description----- 
 This task requires writing a Lean 4 method that calculates the surface area of a cube based on the length of one of its edges. The method should compute the surface area using the standard formula for a cube.
 
@@ -10,4 +11,18 @@ The output is an integer:
 Returns the surface area of the cube.
 
 -----Note-----
+=======
+-----Description----- 
+This task requires writing a Lean 4 method that calculates the surface area of a cube based on the length of one of its edges. The method should compute the surface area using the standard formula for a cube.
+
+-----Input-----
+The input consists of:
+size: An integer representing the length of an edge of the cube.
+
+-----Output-----
+The output is an integer:
+Returns the surface area of the cube.
+
+-----Note-----
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 The input edge length is assumed to be greater than 0.

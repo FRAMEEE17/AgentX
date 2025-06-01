@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
     {
         "input": {
@@ -109,4 +110,117 @@
             false
         ]
     }
+=======
+[
+    {
+        "input": {
+            "a": -5,
+            "b": 10
+        },
+        "expected": true,
+        "unexpected": [
+            false
+        ]
+    },
+    {
+        "input": {
+            "a": 5,
+            "b": -10
+        },
+        "expected": true,
+        "unexpected": [
+            false
+        ]
+    },
+    {
+        "input": {
+            "a": 5,
+            "b": 10
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": -5,
+            "b": -10
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": 0,
+            "b": 10
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": 10,
+            "b": 0
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": 0,
+            "b": -10
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": -10,
+            "b": 0
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": 0,
+            "b": 0
+        },
+        "expected": false,
+        "unexpected": [
+            true
+        ]
+    },
+    {
+        "input": {
+            "a": -1,
+            "b": 1
+        },
+        "expected": true,
+        "unexpected": [
+            false
+        ]
+    },
+    {
+        "input": {
+            "a": 1,
+            "b": -1
+        },
+        "expected": true,
+        "unexpected": [
+            false
+        ]
+    }
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 ]

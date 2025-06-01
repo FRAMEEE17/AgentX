@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #guard isDivisibleBy11 (0) = (true)
 #guard isDivisibleBy11 (11) = (true)
 #guard isDivisibleBy11 (22) = (true)
@@ -9,4 +10,17 @@
 #guard isDivisibleBy11 (1) = (false)
 #guard isDivisibleBy11 (-1) = (false)
 #guard isDivisibleBy11 (121) = (true)
+=======
+#guard isDivisibleBy11 (0) = (true)
+#guard isDivisibleBy11 (11) = (true)
+#guard isDivisibleBy11 (22) = (true)
+#guard isDivisibleBy11 (23) = (false)
+#guard isDivisibleBy11 (33) = (true)
+#guard isDivisibleBy11 (44) = (true)
+#guard isDivisibleBy11 (-11) = (true)
+#guard isDivisibleBy11 (-22) = (true)
+#guard isDivisibleBy11 (1) = (false)
+#guard isDivisibleBy11 (-1) = (false)
+#guard isDivisibleBy11 (121) = (true)
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 #guard isDivisibleBy11 (123) = (false)

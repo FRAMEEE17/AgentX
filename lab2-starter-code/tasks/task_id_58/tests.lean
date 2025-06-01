@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #guard hasOppositeSign (-5) (10) = (true)
 #guard hasOppositeSign (5) (-10) = (true)
 #guard hasOppositeSign (5) (10) = (false)
@@ -8,4 +9,16 @@
 #guard hasOppositeSign (-10) (0) = (false)
 #guard hasOppositeSign (0) (0) = (false)
 #guard hasOppositeSign (-1) (1) = (true)
+=======
+#guard hasOppositeSign (-5) (10) = (true)
+#guard hasOppositeSign (5) (-10) = (true)
+#guard hasOppositeSign (5) (10) = (false)
+#guard hasOppositeSign (-5) (-10) = (false)
+#guard hasOppositeSign (0) (10) = (false)
+#guard hasOppositeSign (10) (0) = (false)
+#guard hasOppositeSign (0) (-10) = (false)
+#guard hasOppositeSign (-10) (0) = (false)
+#guard hasOppositeSign (0) (0) = (false)
+#guard hasOppositeSign (-1) (1) = (true)
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 #guard hasOppositeSign (1) (-1) = (true)

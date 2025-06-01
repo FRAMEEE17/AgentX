@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "name": "ident",
     "parameters": [
@@ -7,4 +8,15 @@
         }
     ],
     "return_type": "Nat"
+=======
+{
+    "name": "ident",
+    "parameters": [
+        {
+            "param_name": "x",
+            "param_type": "Nat"
+        }
+    ],
+    "return_type": "Nat"
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 }

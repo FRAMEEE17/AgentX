@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "name": "isGreater",
     "parameters": [
@@ -11,4 +12,19 @@
         }
     ],
     "return_type": "Bool"
+=======
+{
+    "name": "isGreater",
+    "parameters": [
+        {
+            "param_name": "n",
+            "param_type": "Int"
+        },
+        {
+            "param_name": "a",
+            "param_type": "Array Int"
+        }
+    ],
+    "return_type": "Bool"
+>>>>>>> 1e9a9961e8fdb46ae9c2557929ff8e564c9c54ed
 }
